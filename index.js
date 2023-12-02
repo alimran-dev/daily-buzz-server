@@ -30,9 +30,9 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
-    const database = client.db('dailyBuzzDB');
-    const articleCollection = database.collection('articles');
-    const publisherCollection = database.collection('publishers');
+    const database = client.db("dailyBuzzDB");
+    const articleCollection = database.collection("articles");
+    const publisherCollection = database.collection("publishers");
 
     //   jwt api
     app.post("/jwt", async (req, res) => {
@@ -58,28 +58,46 @@ async function run() {
       });
     };
 
-    app.get('/publishers', async (req, res) => {
+    app.get("/publishers", async (req, res) => {
       const result = await publisherCollection.find().toArray();
       res.send(result);
-    })
+    });
 
-    app.get('/articles', async (req, res) => {
+    app.get("/articles", async (req, res) => {
       const page = parseInt(req.query.page) - 1;
       const size = parseInt(req.query.size);
       console.log(page, size);
-      const query = { status: "approved" }
-      const articles = await articleCollection.find(query).skip(page * size).limit(size).toArray();
+      const query = { status: "approved" };
+      const articles = await articleCollection
+        .find(query)
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       const articleCount = await articleCollection.countDocuments();
       const result = { articles, articleCount };
       res.send(result);
     });
-    app.get('/details/:id', async (req, res) => {
+    app.get("/details/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
-      const result =await articleCollection.findOne(filter);
+      const result = await articleCollection.findOne(filter);
       res.send(result);
-    })
-
+    });
+    app.patch("/views/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const { views } = await articleCollection.findOne(filter, {
+        projection: { views: 1, _id: 0 },
+      });
+      const updateDoc = {
+        $set: {
+          views: views + 1,
+        },
+      };
+      const result = await articleCollection.updateOne(filter, updateDoc);
+      console.log(result);
+      res.send(result);
+    });
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
