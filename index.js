@@ -30,6 +30,9 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
+    const database = client.db('dailyBuzzDB');
+    const articleCollection = database.collection('articles');
+    const publisherCollection = database.collection('publishers');
 
     //   jwt api
     app.post("/jwt", async (req, res) => {
@@ -54,6 +57,22 @@ async function run() {
         next();
       });
     };
+
+    app.get('/publishers', async (req, res) => {
+      const result = await publisherCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.get('/articles', async (req, res) => {
+      const page = parseInt(req.query.page)-1;
+      const size = parseInt(req.query.size);
+      console.log(page, size);
+      const query={status: "approved"}
+      const articles = await articleCollection.find(query).skip(page * size).limit(size).toArray();
+      const articleCount = await articleCollection.countDocuments();
+      const result = { articles, articleCount };
+      res.send(result);
+    })
 
     await client.db("admin").command({ ping: 1 });
     console.log(
