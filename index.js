@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
@@ -64,13 +64,19 @@ async function run() {
     })
 
     app.get('/articles', async (req, res) => {
-      const page = parseInt(req.query.page)-1;
+      const page = parseInt(req.query.page) - 1;
       const size = parseInt(req.query.size);
       console.log(page, size);
-      const query={status: "approved"}
+      const query = { status: "approved" }
       const articles = await articleCollection.find(query).skip(page * size).limit(size).toArray();
       const articleCount = await articleCollection.countDocuments();
       const result = { articles, articleCount };
+      res.send(result);
+    });
+    app.get('/details/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const result =await articleCollection.findOne(filter);
       res.send(result);
     })
 
