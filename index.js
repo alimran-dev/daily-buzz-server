@@ -109,11 +109,46 @@ async function run() {
         email: user.email,
         photo: user.photo,
         role: "user",
-        premiumTaken: null,
+        premiumValid: null,
       };
       const result = await userCollection.insertOne(userDoc);
       res.send(result);
     });
+    app.patch("/subscription", async (req, res) => {
+      const user = req.body;
+      const timeNow = Date.now();
+      let date;
+      const { email, plan } = user || {};
+      const filter = { email: email };
+      if (plan === 1) {
+        date = timeNow + (1 * 60 * 1000);
+      }
+      else if (plan === 10) {
+        date = timeNow + (30 * 24 * 60 * 60 * 1000);
+      }
+      else if (plan === 80) {
+        date = timeNow + (365 * 24 * 60 * 60 * 1000);
+      }
+      else {
+        const result = await userCollection.findOne(filter);
+        if (!result?.premiumValid) {
+          return res.send(['Free user'])
+        }
+        else if (result?.premiumValid < Date.now()) {
+          date=null
+        }
+        else {
+          return res.send(["Premium User"]);
+        }
+      }
+      const updateDoc = {
+        $set: {
+          premiumValid: date,
+        }
+      }
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result)
+    })
 
     // payment intent
     app.post("/create-payment-intent", async (req, res) => {
