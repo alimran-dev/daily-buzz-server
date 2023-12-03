@@ -114,6 +114,25 @@ async function run() {
       const result = await userCollection.insertOne(userDoc);
       res.send(result);
     });
+
+
+
+    app.patch("/userUpdate", async (req, res) => {
+      const user = req.body;
+      const { name, email, photoURL } = user || {};
+      const filter = { email: email };
+      const updateDoc = {
+        $set: {
+          name: name,
+          photo: photoURL,
+        }
+      }
+      console.log(user);
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+
+
     app.patch("/subscription", async (req, res) => {
       const user = req.body;
       const timeNow = Date.now();
