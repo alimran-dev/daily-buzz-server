@@ -34,6 +34,7 @@ async function run() {
     const database = client.db("dailyBuzzDB");
     const articleCollection = database.collection("articles");
     const publisherCollection = database.collection("publishers");
+    const userCollection = database.collection("users");
 
     //   jwt api
     app.post("/jwt", async (req, res) => {
@@ -97,6 +98,20 @@ async function run() {
       };
       const result = await articleCollection.updateOne(filter, updateDoc);
       console.log(result);
+      res.send(result);
+    });
+    // user related api
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const userDoc = {
+        name: user.name,
+        email: user.email,
+        photo: user.photo,
+        role: "user",
+        premiumTaken: null,
+      };
+      const result = await userCollection.insertOne(userDoc);
       res.send(result);
     });
 
