@@ -85,6 +85,28 @@ async function run() {
       const result = await articleCollection.findOne(filter);
       res.send(result);
     });
+    app.post("/articles", async (req, res) => {
+      const articleData = req.body;
+      console.log(articleData);
+      const { title, publisher, tags, photo, description,author_name,author_email,author_photo } = articleData || {};
+      const article = {
+        title: title,
+        image: photo,
+        publisher: publisher,
+        tags: tags,
+        description: description,
+        views: 0,
+        author_name: author_name,
+        author_email: author_email,
+        author_photo: author_photo,
+        date: Date.now(),
+        status: 'pending',
+        isPremium: false,
+        feedback: null,
+      }
+      const result = await articleCollection.insertOne(article);
+      res.send(result)
+    })
     app.patch("/views/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
