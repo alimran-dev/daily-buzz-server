@@ -167,6 +167,14 @@ async function run() {
       const result = await userCollection.findOne(filter);
       res.send(result);
     })
+    app.get("/userCount", async (req, res) => {
+      const totalUser = (await userCollection.countDocuments());
+      const normalFilter = { premiumValid: null };
+      const normalUser = await userCollection.countDocuments(normalFilter);
+      const premiumFilter = { premiumValid: { $type: "number" } };
+      const premiumUser = await userCollection.countDocuments(premiumFilter);
+      res.send({totalUser,normalUser,premiumUser});
+    })
     app.post("/users", async (req, res) => {
       const user = req.body;
       console.log(user);
