@@ -132,6 +132,23 @@ async function run() {
       console.log(result);
       res.send(result);
     });
+    app.patch("/articles/:id", async (req, res) => {
+      const id = req.params.id;
+      const article = req.body;
+      const { title, publisher, tags, photo, description } = article || {};
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          title,
+          publisher,
+          tags,
+          image: photo,
+          description,
+        }
+      }
+      const result = await articleCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
     app.delete("/delete/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
