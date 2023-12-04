@@ -85,6 +85,16 @@ async function run() {
       const result = await articleCollection.findOne(filter);
       res.send(result);
     });
+    app.get("/myArticles", async (req, res) => {
+      const email = req.query.email;
+      // console.log('author',email);
+      const query = { author_email: email };
+      const options = {
+        projection:{title: 1,isPremium: 1,status: 1,feedback:1},
+      }
+      const result = await articleCollection.find(query,options).toArray();
+      res.send(result);
+    })
     app.post("/articles", async (req, res) => {
       const articleData = req.body;
       console.log(articleData);
@@ -122,6 +132,12 @@ async function run() {
       console.log(result);
       res.send(result);
     });
+    app.delete("/delete/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const result = await articleCollection.deleteOne(filter);
+      res.send(result);
+    })
     // user related api
     app.post("/users", async (req, res) => {
       const user = req.body;
