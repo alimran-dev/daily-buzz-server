@@ -95,6 +95,11 @@ async function run() {
       const result = await articleCollection.find(query,options).toArray();
       res.send(result);
     })
+    app.get("/premiumArticles", async (req, res) => {
+      const filter = { isPremium: true };
+      const result = await articleCollection.find(filter).toArray();
+      res.send(result);
+    })
     app.post("/articles", async (req, res) => {
       const articleData = req.body;
       console.log(articleData);
