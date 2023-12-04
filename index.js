@@ -161,6 +161,12 @@ async function run() {
       res.send(result);
     })
     // user related api
+    app.get("/user", async (req, res) => {
+      const email = req.query.email;
+      const filter = { email: email };
+      const result = await userCollection.findOne(filter);
+      res.send(result);
+    })
     app.post("/users", async (req, res) => {
       const user = req.body;
       console.log(user);
