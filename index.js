@@ -100,6 +100,10 @@ async function run() {
       const result = await articleCollection.find(filter).toArray();
       res.send(result);
     })
+    app.get("/popularArticle", async (req, res) => {
+      const result = await articleCollection.find().sort({ views: -1 }).limit(6).toArray();
+      res.send(result);
+    })
     app.post("/articles", async (req, res) => {
       const articleData = req.body;
       console.log(articleData);
@@ -167,6 +171,20 @@ async function run() {
       const result = await userCollection.findOne(filter);
       res.send(result);
     })
+    app.get("/users", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    })
+    app.get("/admin", async (req, res) => {
+      const email = req.query.email;
+      const filter = { email: email };
+      const result = await userCollection.findOne(filter);
+      let admin = false;
+      if (result) {
+        admin = result?.role === 'admin';
+      }
+      res.send({ admin });
+    })
     app.get("/userCount", async (req, res) => {
       const totalUser = (await userCollection.countDocuments());
       const normalFilter = { premiumValid: null };
@@ -188,6 +206,23 @@ async function run() {
       const result = await userCollection.insertOne(userDoc);
       res.send(result);
     });
+    app.post("/addPublisher", async (req, res) => {
+      const publisher = req.body;
+      console.log(publisher);
+      const result = await publisherCollection.insertOne(publisher);
+      res.send(result)
+    })
+    app.patch("/makeAdmin", async (req, res) => {
+      const email = req.query.email;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: {
+          role: 'admin',
+        }
+      }
+      const result = await userCollection.updateOne(filter,updateDoc);
+      res.send(result);
+    })
 
 
 
