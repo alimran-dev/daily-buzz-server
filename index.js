@@ -65,6 +65,10 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/articlesAll', async (req, res) => {
+      const result = await articleCollection.find().sort({date: -1}).toArray();
+      res.send(result);
+    })
     app.get("/articles", async (req, res) => {
       const page = parseInt(req.query.page) - 1;
       const size = parseInt(req.query.size);
@@ -276,6 +280,18 @@ async function run() {
       }
       const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result)
+    })
+    app.patch("/update/status", async (req, res) => {
+      const status = req.query.status;
+      const id = req.query.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status,
+        }
+      };
+      const result = await articleCollection.updateOne(filter, updateDoc);
+      res.send(result);
     })
 
     // payment intent
